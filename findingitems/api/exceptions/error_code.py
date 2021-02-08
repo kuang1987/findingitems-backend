@@ -1,0 +1,11 @@
+MISS_REQUIRED_PARAMS_CODE = 40000
+MISS_REQUIRED_PARAMS_MSG = 'miss_required_params'
+
+INVALID_PARAMS_CODE = 40000
+INVALID_PARAMS_MSG = 'invalid_params'
+
+UNKNOWN_CODE = 50000
+UNKNOWN_MSG = 'unknown_error_happend'
+
+LOGIN_FAILED_CODE = 40001
+LOGIN_FAILED_MSG = 'invalid_username_or_password'

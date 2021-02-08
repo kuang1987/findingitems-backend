@@ -1,0 +1,14 @@
+requests
+baidu-aip
+Django==2.2.16
+djangorestframework==3.12.2
+drf-yasg==1.20.0
+django-split-settings==1.0.0
+psycopg2-binary==2.8.4
+pycryptodome==3.9.7
+PyJWT==1.7.1
+django-filter==2.2.0
+jedi==0.15.2
+ipython==7.11.1
+ipython-genutils==0.2.0
+prompt-toolkit==3.0.2
