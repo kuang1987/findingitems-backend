@@ -4,6 +4,7 @@ import datetime
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from django.db import transaction
 
 from findingitems.api.exceptions.common import (
     ParameterInvalid,
@@ -14,7 +15,15 @@ from findingitems.api.exceptions import error_msg
 from findingitems.wechat.utils import *
 import findingitems.jwt.utils as jwt_utils
 
-from findingitems.users.models import AuthUser
+from findingitems.users.models import (
+    AuthUser,
+    UserSettings
+)
+
+from findingitems.location.models import (
+    Location,
+    LocationMemberShip,
+)
 
 from .serializers import (
     UserLoginSerializer
@@ -77,18 +86,41 @@ class WechatLoginView(APIView):
             user.save()
         except ObjectDoesNotExist:
             try:
-                user = AuthUser()
-                user.username = wechat_openid
-                user.wechat_openid = wechat_openid
-                wechat_unionid = wechat_c2s_result.get('unionid', '')
-                if wechat_unionid == '':
-                    wechat_unionid = gen_fake_wechat_unionid()
-                user.wechat_unionid = wechat_unionid
-                user.avatar_url = avatar_url
-                user.real_name = real_name
-                user.date_joined = datetime.datetime.now()
-                user.save()
+                with transaction.atomic():
+                    user = AuthUser()
+                    user.username = wechat_openid
+                    user.wechat_openid = wechat_openid
+                    wechat_unionid = wechat_c2s_result.get('unionid', '')
+                    if wechat_unionid == '':
+                        wechat_unionid = gen_fake_wechat_unionid()
+                    user.wechat_unionid = wechat_unionid
+                    user.avatar_url = avatar_url
+                    user.real_name = real_name
+                    user.date_joined = datetime.datetime.now()
+                    user.save()
+
+                    loc = Location.objects.create(
+                        owner=user,
+                        name=settings.DEFAULT_LOCATION_NAME,
+                    )
+                    loc.save()
+
+                    profile = UserSettings.objects.create(
+                        user=user,
+                        default_loc=loc
+                    )
+                    profile.save()
+
+                    lms = LocationMemberShip.objects.create(
+                        member=user,
+                        location=loc,
+                        role=LocationMemberShip.LOCATION_MEMBER_ROLE_OWNER,
+                        alias_name=loc.name,
+                    )
+                    lms.save()
+
             except Exception as e:
+                print(str(e))
                 logger.debug('Wechat Login: create user with openid %s failed. %s' % (wechat_openid, str(e)))
                 raise UnknownException(error_msg.WECHAT_USER_CREATION_FAILED)
 

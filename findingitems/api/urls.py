@@ -28,5 +28,7 @@ urlpatterns = [
     url(r'^login/$', csrf_exempt(WechatLoginView.as_view())),
     url(r'^auth/$', csrf_exempt(UserCheckAuthView.as_view())),
     url(r'^oss_token/$', csrf_exempt(OssTokenView.as_view())),
-    url(r'^instruction/', include('findingitems.api.instruction.urls'))
+    url(r'^instruction/', include('findingitems.api.instruction.urls')),
+    url(r'^location/', include('findingitems.api.location.urls')),
+    url(r'^notification/', include('findingitems.api.notification.urls'))
 ]

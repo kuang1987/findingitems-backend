@@ -20,3 +20,20 @@ class AuthUser(AbstractUser):
         max_length=1024,
         null=True
     )
+
+    def get_profile(self):
+        return getattr(self, 'profile', None)
+
+
+class UserSettings(models.Model):
+    user = models.OneToOneField(
+        'users.AuthUser',
+        related_name='profile',
+        on_delete=models.CASCADE,
+    )
+    default_loc = models.ForeignKey(
+        'location.Location',
+        related_name='set_default_by_user',
+        on_delete=models.SET_NULL,
+        null=True,
+    )

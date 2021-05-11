@@ -12,26 +12,45 @@ from findingitems.baidu.aip_nlp import (
     abstract_v1 as nlp_abs,
 )
 from findingitems.instruction.utils import search_instructions
+from findingitems.location.models import Location
+from findingitems.api.exceptions.common import ParameterInvalid
+from findingitems.api.exceptions import error_msg
 
 
 class InstructionViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin, GenericViewSet):
     permission_classes = [IsUserAuthenticated,]
     lookup_url_kwarg = "instruction_id"
+    filterset_fields = ['location_id']
 
     def get_serializer_class(self):
         return InstructionListSerializer
 
     def get_queryset(self):
-        return self.request.user.instructions.filter(is_delete=False, type=Instruction.INSTRUCTION_TYPE_STORE).order_by('-create_time')
+        location_mems = self.request.user.joined_locations.all()
+        location_ids = [lm.location.id for lm in location_mems]
+        return Instruction.objects.filter(
+            is_delete=False,
+            type=Instruction.INSTRUCTION_TYPE_STORE,
+            location_id__in=location_ids,
+        ).order_by('-create_time')
 
     def perform_create(self, serializer):
+        loc_id = serializer.validated_data.get('location_id', -1)
+        loc_obj = None
+        try:
+            loc_obj = Location.objects.get(id=loc_id)
+        except ObjectDoesNotExist:
+            if serializer.validated_data['type'] == Instruction.INSTRUCTION_TYPE_STORE:
+                raise ParameterInvalid(error_msg.LOCATION_PARAMETER_MISSING)
+
         sdp_result = nlp_parse(serializer.validated_data['text'])
         item, loc = nlp_abs(sdp_result['dep'])
         serializer.save(
             item_part=item,
             loc_part=loc,
             sdp_result=sdp_result,
-            owner=self.request.user
+            owner=self.request.user,
+            location=loc_obj
         )
         # item, loc = nlp_abs(sdp_result['dep'])
         # # for item in items:
@@ -69,7 +88,7 @@ class InstructionViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin, Ge
                              }
                            }, status=status.HTTP_200_OK)
 
-        store_instances = Instruction.objects.filter(is_delete=False, type=Instruction.INSTRUCTION_TYPE_STORE).order_by('-create_time')
+        store_instances = self.get_queryset()
         items = search_instructions(finding_obj, store_instances)
         for item in items:
             print(item.text)

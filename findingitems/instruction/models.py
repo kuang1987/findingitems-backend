@@ -9,6 +9,12 @@ class Instruction(models.Model):
         related_name='instructions',
         on_delete=models.PROTECT,
     )
+    location = models.ForeignKey(
+        'location.Location',
+        related_name='instructions',
+        on_delete=models.SET_NULL,
+        null=True,
+    )
     INSTRUCTION_TYPE_STORE = 0
     INSTRUCTION_TYPE_SEARCH = 1
     INSTRUCTION_TYPE_CHOICES = (

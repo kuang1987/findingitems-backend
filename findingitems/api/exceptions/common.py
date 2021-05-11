@@ -27,6 +27,7 @@ class ParameterInvalid(APIException):
     def __init__(self, msg=None):
         super(ParameterInvalid, self).__init__(detail=msg)
 
+
 class LoginFailedException(APIException):
     status_code = codes.LOGIN_FAILED_CODE
     default_detail = _(codes.LOGIN_FAILED_MSG)
