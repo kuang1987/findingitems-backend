@@ -20,7 +20,7 @@ from findingitems.api.exceptions import error_msg
 class InstructionViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin, GenericViewSet):
     permission_classes = [IsUserAuthenticated,]
     lookup_url_kwarg = "instruction_id"
-    filterset_fields = ['location_id']
+    filterset_fields = ['location']
 
     def get_serializer_class(self):
         return InstructionListSerializer

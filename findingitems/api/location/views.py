@@ -284,6 +284,14 @@ class LocationInvitationViewSet(CreateModelMixin, UpdateModelMixin, ListModelMix
             member=self.request.user
         )
 
+        lms = LocationMemberShip.objects.filter(
+            location=loc,
+            member=self.request.user,
+            role=LocationMemberShip.LOCATION_MEMBER_ROLE_MEMBER
+        )
+        if lms.count() > 0:
+            raise ParameterInvalid(error_msg.LOCATION_ALREADY_JOINED)
+
         loc_invitation.status = LocationMemberInvitation.LOCATION_INVITATION_STATUS_PENDING
         loc_invitation.save()
 

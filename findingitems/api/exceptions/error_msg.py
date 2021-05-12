@@ -11,6 +11,7 @@ LOCATION_CREATION_FAILURE = 'location_creation_failure'
 LOCATION_DELETION_FAILURE = 'location_deletion_failure'
 
 LOCATION_OWNER_CANNOT_BE_MEMBER = 'location_owner_cannot_be_member'
+LOCATION_ALREADY_JOINED = 'location_already_joind'
 LOCATION_NOT_EXIST = 'location_not_exist'
 
 LOCATION_MEMBERSHIP_FAIL = 'location_membership_fail'
